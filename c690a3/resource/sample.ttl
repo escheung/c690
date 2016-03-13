@@ -1,0 +1,18 @@
+@prefix fb: <http://rdf.freebase.com/ns/> .
+@prefix fbk: <http://rdf.freebase.com/key/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix c690: <cmput690> .
+
+fb:m.0114zdd2	fb:sports.sports_team_roster.player	fb:m.07k7ht5 .
+fb:m.0114zdd2	fb:sports.sports_team_roster.from	"2014-07-16"^^xsd:date .
+fb:m.0114zdd2	fb:sports.sports_team_roster.team	fb:m.0ytc .
+fb:m.0ytc	fbk:wikipedia.en	"Associazione_Sportiva_Roma" .
+fb:m.07k7ht5	fb:type.object.key	"/wikipedia/en/Juan_Manuel_Iturbe" .
+fb:m.07k7ht5	fb:type.object.key	"/wikipedia/en_title/Juan_Iturbe" .
+fb:m.07k7ht5	fbk:wikipedia.en	"Juan_Iturbe" .
+fb:m.07k7ht5	fb:type.object.key	"/wikipedia/en/Juan_Iturbe" .
+fb:m.07k7ht5	fbk:wikipedia.en	"Juan_Manuel_Iturbe" .
+fb:m.07k7ht5	fb:type.object.key	"/wikipedia/en_id/24227160" .
+fb:m.07k7ht5	fbk:wikipedia.en_id	"24227160" .
+fb:m.07k7ht5	fbk:wikipedia.en_title	"Juan_Iturbe" .
+fb:m.07k7ht5	c690:hasDocument	"Juan Manuel Iturbe Arévalos (born June 4, 1993) is an Argentine footballer who currently plays for FC Porto. Son of Paraguayan parents and born in Argentina, Iturbe was eligible to represent either Paraguay or Argentina, having played at youth levels for both. He has recently declared his will to play for Argentina by stating that Paraguay is a closed chapter in his life. He mainly plays as a forward.\nIturbe started playing first team football with Cerro Porteño on June 28, 2009, at age 16, on a game against Libertad, valid for the 21st week of the Paraguayan Primera División.\nBeing 17 years of age, Iturbe was not under professional contract with Cerro Porteño. Therefore, he signed for Quilmes of the Argentine Primera División on a free transfer in August 2010. In January 2011, Iturbe confirmed he was signing with Portuguese club FC Porto. He will join the team when he turns 18. After agreeing on said move to FC Porto, he returned to Cerro Porteño in February, where he remained until his 18th birthday in June. He scored a brace on his first Copa Libertadores game shortly after that.\nIn May 2012, after limited opportunities in Porto, Iturbe has been linked with a move to Serie A"@en .
