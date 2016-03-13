@@ -12,7 +12,7 @@ public class Solver {
 	public static void main(String[] args) {
 
 		Model model = RDFDataMgr.loadModel(SOURCE_RDF);
-		
+	
 		
 	}
 
