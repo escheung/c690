@@ -19,7 +19,7 @@ import edu.stanford.nlp.util.Triple;
 
 public class Engine {
 
-	private Properties properties = new Properties();
+	//private Properties properties = new Properties();
 	
 	private static String serializedClassifier = "resources/english.all.3class.distsim.crf.ser.gz";
 	private static String posModel = "resources/english-left3words-distsim.tagger";
@@ -116,6 +116,8 @@ public class Engine {
 		map.put("entity", entity.toArray(new String[entity.size()]));
 		return map;
 	}
+	
+
 	
 	public void printTags(Vector<String> words, Vector<String> tags) {
 		

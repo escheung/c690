@@ -1,4 +1,5 @@
 import com.wcohen.ss.Jaccard;
+import com.wcohen.ss.JaroWinkler;
 import com.wcohen.ss.api.StringWrapper;
 
 public class TestJaccard {
@@ -7,18 +8,25 @@ public class TestJaccard {
 		// TODO Auto-generated method stub
 
 		
-		String s1 = "Reggina Calcio";
-		String s2 = "Reggina_Calcio";
-		String s3 = "Reggina";
+		String s1 = "Bologna F.C.";
+		String s2 = "Bologna_FC";
+		String s3 = "Bologna";
 		String s4 = "/wikipedia/en/Reggina_Calcio";
 		
-		jCompare(s1,s2);
+		jaroCompare(s1,s2);
+		jaroCompare(s1,s3);
+		jaroCompare(s2,s3);
 		
-		jCompare(s1,s3);
+		//jCompare(s1,s2);
 		
-		jCompare(s1,s4);
 	}
 
+	private static void jaroCompare(String s, String t) {
+		
+		JaroWinkler jw = new JaroWinkler();
+		System.out.println(jw.score(s, t));
+		
+	}
 	
 	private static void jCompare(String s, String t) {
 		
@@ -26,6 +34,7 @@ public class TestJaccard {
 		StringWrapper sw1 = jaccard.prepare(s);
 		StringWrapper sw2 = jaccard.prepare(t);
 		System.out.println(jaccard.explainScore(s,t));
+		System.out.println(jaccard.score(s, t));
 		
 	}
 }

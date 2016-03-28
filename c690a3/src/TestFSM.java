@@ -8,10 +8,14 @@ public class TestFSM {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 
-		String text = "Wayne Gretzky is a American footballer.  He is also called The Great One.";
-		
+		//String text = "Wayne Gretzky is a American footballer.  He is also called The Great One.";
+		String text = "Teresa Rivero, or rivero, is a multi-use stadium in Madrid.  The stadium (or field) is the home ground of Deportivo de La Coruña Football Club";
 		Engine engine = new Engine();
 		
+		
+		String stuffInBrackets = FSM.betweenBrackets(text);
+		System.out.println("Stuff In Brackets:"+stuffInBrackets);
+		text = FSM.delBrackets(text);
 		String[] sentences = engine.splitToSentences(text);
 		
 		for (String sent: sentences) {
