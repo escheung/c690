@@ -1,17 +1,17 @@
 import java.io.PrintWriter;
-import java.util.Arrays;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.vocabulary.*;
 
-import com.wcohen.ss.Jaccard;
+
 import com.wcohen.ss.JaroWinkler;
-
 
 
 public class Solver {
@@ -34,6 +34,18 @@ public class Solver {
 	private static final String FreebaseNameSpace = "http://rdf.freebase.com/ns/";
 	private static final String FreebaseRosterTeam = "sports.sports_team_roster.team";
 	private static final String FreebaseRosterPlayer = "sports.sports_team_roster.player";
+	private static final String FreebaseRosterFrom = "sports.sports_team_roster.from";
+	private static final String FreebaseTenureFrom = "soccer.football_team_management_tenure.from";
+	private static final String FreebaseTenureTo = "soccer.football_team_management_tenure.to";
+	private static final String FreebaseTenureTeam = "soccer.football_team_management_tenure.team";
+	private static final String FreebaseTenureManager = "soccer.football_team_management_tenure.manager";
+	
+	/*
+	 * fb:m.0l3ljcs	fb:soccer.football_team_management_tenure.manager	fb:m.026zdf9 .
+fb:m.0l3ljcs	fb:soccer.football_team_management_tenure.to	"1982-04"^^xsd:gYearMonth .
+fb:m.0l3ljcs	fb:soccer.football_team_management_tenure.team	fb:m.06l2
+fb:m.01144qm8	fb:soccer.football_team_management_tenure.from	"2009-10-24"^^xsd:date .
+	 */
 	
 	public static void main(String[] args) throws Exception {
 
@@ -75,14 +87,6 @@ public class Solver {
 		// process the 'documents' for relationships and add to model.
 		Solver.processRelations(engine, model, docMap);
 		
-		
-//		printVectorString(documents);
-		
-//		testModel(model);
-		
-//		printStatements(model);	// Print out the statements in model.
-		
-		
 		// Print answers to file
 		PrintWriter writer0 = new PrintWriter(OUTPUT_0,"UTF-8");
 		writer0.println(printStatements(model));	// write statements to file for testing.
@@ -95,6 +99,18 @@ public class Solver {
 		PrintWriter writer2 = new PrintWriter(OUTPUT_2,"UTF-8");
 		writer2.print(solver2(model));
 		writer2.close();
+		
+		PrintWriter writer3 = new PrintWriter(OUTPUT_3,"UTF-8");
+		writer3.print(solver3(model));
+		writer3.close();
+		
+		PrintWriter writer4 = new PrintWriter(OUTPUT_4,"UTF-8");
+		writer4.print(solver4(model));
+		writer4.close();
+		
+		PrintWriter writer5 = new PrintWriter(OUTPUT_5,"UTF-8");
+		writer5.print(solver5(model));
+		writer5.close();
 		
 		//TODO: solve the rest.
 		
@@ -143,6 +159,50 @@ public class Solver {
 		
 	}
 	
+	
+	private static void processRelations(Engine engine, Model model, Map<Resource,String> docs) {
+		// Parse documents stored in model and extract additional triples using TSM. 
+		
+		// For each map keys with document.
+		for (Resource key: docs.keySet()) {
+			
+			String doc = docs.get(key);					// Get document from map using key.
+			doc = FSM.delBrackets(doc);					// delete all brackets & content.
+			
+			String[] sentences = engine.splitToSentences(doc);	// split each document into sentences.
+			
+			//System.out.format("Relating URI: %s ***\n",key.getURI());
+			
+			for (int i=0; i < sentences.length; i++) {
+			//for (String sentence: sentences) {
+				Vector<String> vw = new Vector<String>();		// Vector of words/tokens.
+				Vector<String> vt = new Vector<String>();		// Vector of POS tags.
+				Vector<Trip> trips = new Vector<Trip>();		// Vector of triples returned from FMS.
+				
+				String sent = sentences[i];
+				sent = FSM.delStuffBtwCommas(sent);				// delete stuff between commas.
+
+				// Ask engine to Tokenize and apply POS Tagging
+				engine.posTagging(sent, vw, vt);					// POS tagging
+				String[] word = vw.toArray(new String[vw.size()]);	// convert to array
+				String[] tag = vt.toArray(new String[vt.size()]);	// convert to array
+
+				// *** HOME_OF relations ***
+				//trips.addAll(FSM.findHomeOf(key.getURI(), word, tag));	// find "home of" relationships.
+				Solver.processTriple(FSM.findHomeOf(key.getURI(), word, tag), model);
+				// *** PLAYS_FOR relations ***
+				//trips.addAll(FSM.findPlaysFor(key.getURI(), word, tag));	// find "plays for" relationships.
+				Solver.processTriple(FSM.findPlaysFor(key.getURI(), word, tag), model);
+				
+				// *** NAMED_AFTER relations ***
+				Solver.processTripleAsLiteral(FSM.findNamedAfter(key.getURI(), word, tag),model);
+
+				// *** Process and Map triples objects to model.
+				//Solver.processTriple(trips, model);
+			}
+		}
+		
+	}
 	private static void processTripleAsLiteral(Vector<Trip> triples, Model model) {
 		// Add text triples to model as literal statement.
 		// Useful for new literal objects.
@@ -187,45 +247,6 @@ public class Solver {
 		}
 		
 	}
-	
-	private static void processRelations(Engine engine, Model model, Map<Resource,String> docs) {
-		// Parse documents stored in model and extract additional triples using TSM. 
-		
-		// For each map keys with document.
-		for (Resource key: docs.keySet()) {
-			
-			String doc = docs.get(key);					// Get document from map using key.
-			doc = FSM.delBrackets(doc);					// delete all brackets & content.
-			
-			String[] sentences = engine.splitToSentences(doc);	// split each document into sentences.
-			
-			//System.out.format("Relating URI: %s ***\n",key.getURI());
-			
-			for (int i=0; i < sentences.length; i++) {
-			//for (String sentence: sentences) {
-				Vector<String> vw = new Vector<String>();		// Vector of words/tokens.
-				Vector<String> vt = new Vector<String>();		// Vector of POS tags.
-				Vector<Trip> trips = new Vector<Trip>();		// Vector of triples returned from FMS.
-				
-				String sent = sentences[i];
-				sent = FSM.delStuffBtwCommas(sent);				// delete stuff between commas.
-
-				// Ask engine to Tokenize and apply POS Tagging
-				engine.posTagging(sent, vw, vt);					// POS tagging
-				String[] word = vw.toArray(new String[vw.size()]);	// convert to array
-				String[] tag = vt.toArray(new String[vt.size()]);	// convert to array
-
-				// *** HOME_OF relations ***
-				trips.addAll(FSM.findHomeOf(key.getURI(), word, tag));	// find "home of" relationships.
-				
-				// *** Process and Map triples objects to model.
-				Solver.processTriple(trips, model);
-				
-			}
-		}
-		
-	}
-	
 	private static Vector<Trip> processOtherNames(String anchor, String text, Engine engine, Model m) {
 		Vector<String> words = new Vector<String>();
 		Vector<String> tags = new Vector<String>();
@@ -305,7 +326,7 @@ public class Solver {
 		// Which stadiums are used by which clubs?
 		StringBuilder sb = new StringBuilder();
 		
-		Property home_of = model.createProperty(FSM.NS, FSM.HOME_OF);	// home_of peroperty
+		Property home_of = model.createProperty(FSM.NS, FSM.HOME_OF);	// home_of property
 		
 		Selector selector = new SimpleSelector(null,home_of,(RDFNode)null);
 		StmtIterator it = model.listStatements(selector);
@@ -335,11 +356,12 @@ public class Solver {
 	
 	private static String solver2(Model model) {
 		// Who plays for which teams?
-		// TODO
+		// TODO: Remove duplicate if possible.
 		StringBuilder sb = new StringBuilder();
 		
+		// Select "Roster" relations.
 		Property rosterTeamProp = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseRosterTeam);
-		Property rosterPlayerProp = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseRosterPlayer);
+		Property rosterPlayerProp = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseRosterPlayer);		
 		Selector selectRosterTeam = new SimpleSelector(null,rosterTeamProp,(RDFNode)null);
 		StmtIterator it = model.listStatements(selectRosterTeam);
 		while (it.hasNext()) {	// each team with roster.
@@ -365,14 +387,191 @@ public class Solver {
 					playerLiteral = Solver.findName(player.asResource(), model);
 				}
 				
-				sb.append(String.format("%s\t%s\t%s\t%s\n", clubKey, clubLiteral, playerKey, playerLiteral));
+				sb.append(String.format("%s\t%s\t%s\t%s\n", playerKey, playerLiteral, clubKey, clubLiteral ));
+			}
+		}
+		// Select "Plays For" relations.
+		Property playsForProp = model.createProperty(FSM.NS,FSM.PLAYS_FOR);
+		Selector selectPlaysFor = new SimpleSelector(null,playsForProp,(RDFNode)null);
+		StmtIterator it2 = model.listStatements(selectPlaysFor);
+		while (it2.hasNext()) {	// each "plays for" relationship.
+			Statement stmt = it2.nextStatement();
+			Resource player = stmt.getSubject();
+			RDFNode club = stmt.getObject();
+			String clubKey = "";
+			String clubLiteral = "";
+			String playerKey = player.getURI();						// get player URI key.
+			String playerLiteral = Solver.findName(player, model);	// get player literal. 
+			if (club.isResource()) {
+				clubKey = club.asResource().getURI();
+				clubLiteral = Solver.findName(club.asResource(), model);
+			} else if (club.isLiteral()) {
+				clubLiteral = club.asLiteral().getString();
+			};
+			sb.append(String.format("%s\t%s\t%s\t%s\n", playerKey, playerLiteral, clubKey, clubLiteral));
+
+		}
+		
+		return sb.toString();
+	}
+	
+	private static String solver3(Model model) {
+		// Who coaches a team with Spanish players?
+		// TODO:
+		StringBuilder sb = new StringBuilder();
+
+		Property rosterPlayer = model.createProperty(Solver.FreebaseNameSpace,Solver.FreebaseRosterPlayer);
+		Property nationality = model.createProperty(FSM.NS,FSM.NATIONALITY);
+		Property rosterFrom = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseRosterFrom);
+		Property rosterTeam = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseRosterTeam);
+		Property tenureFrom = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseTenureFrom);
+		Property tenureTo = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseTenureTo);
+		Property tenureTeam = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseTenureTeam);
+		Property tenureManager = model.createProperty(Solver.FreebaseNameSpace, Solver.FreebaseTenureManager);
+		Set<String> setOfManagers = new HashSet<String>();
+		
+		RDFNode literalSpanish = model.createLiteral("Spanish");
+
+		// 1) find players of Nationality Spanish.
+		ResIterator listOfSpanish = model.listSubjectsWithProperty(nationality, literalSpanish);
+		
+		while (listOfSpanish.hasNext()) {
+			Resource player = listOfSpanish.nextResource();
+			//sb.append(String.format("Spanish Player %s\n", player.getURI()));
+			
+			// 2) find team and year of the players was party of.	
+			ResIterator listOfRoster = model.listSubjectsWithProperty(rosterPlayer,player);
+			while (listOfRoster.hasNext()) {	// for each roster with the player.
+				Resource roster = listOfRoster.nextResource();
+				NodeIterator rosterTimeNode = model.listObjectsOfProperty(roster, rosterFrom);
+				NodeIterator rosterTeamNode = model.listObjectsOfProperty(roster,rosterTeam); 
+				int playerYear = 0;
+				Resource team = null;
+				if (rosterTimeNode.hasNext()) {	// find year of roster.
+					String timeLiteral = rosterTimeNode.nextNode().asLiteral().getLexicalForm();	// get year as literal.
+					playerYear = Integer.parseInt(timeLiteral.substring(0, 4));	// parse year as first 4 digit.
+				} else {
+					continue; 	// skip this roster because no year given.
+				}
+				
+				if (rosterTeamNode.hasNext()) {	// find team of roster.
+					team = rosterTeamNode.nextNode().asResource();	// get team as resource.
+				} else {
+					continue;	// skip this roster because no team given.
+				}
+				
+				
+				// 3) find manager of the team of that year.
+				
+				ResIterator listOfTenure = model.listResourcesWithProperty(tenureTeam, team);
+				while (listOfTenure.hasNext()) {	// for each management tenure of the team.
+					Resource tenure = listOfTenure.nextResource();
+					NodeIterator tenureFromNode = model.listObjectsOfProperty(tenure, tenureFrom);
+					NodeIterator tenureToNode = model.listObjectsOfProperty(tenure, tenureTo);
+					NodeIterator tenureManagerNode = model.listObjectsOfProperty(tenure, tenureManager);
+					int tenureYearFrom = 9999;
+					int tenureYearTo = 9999;
+					Resource manager = null;
+					
+					if (tenureFromNode.hasNext()) {	// find tenure start year.
+						String fromLiteral = tenureFromNode.nextNode().asLiteral().getLexicalForm();	// get from year as literal.
+						tenureYearFrom = Integer.parseInt(fromLiteral.substring(0, 4));
+					} else {
+						continue;	// skip this tenure because no year of Start given.
+					}
+					if (tenureToNode.hasNext()) {	// find tenure end year.
+						String toLiteral = tenureToNode.nextNode().asLiteral().getLexicalForm();	// get from year as literal.
+						tenureYearTo = Integer.parseInt(toLiteral.substring(0, 4));
+					}
+					if (tenureManagerNode.hasNext()) {	// find tenure manager.
+						manager = tenureManagerNode.next().asResource();	// get team manager.
+					} else {
+						continue;	// skip this tenure if no manager given.
+					}
+					
+					// check if year is within bound.
+					if ((playerYear <= tenureYearTo) && (playerYear >= tenureYearFrom)) {
+						//bagOfManagers.add(manager);
+						setOfManagers.add(manager.getURI());
+						//sb.append(String.format("P.Year:%d; T.From:%d; T.To:%d; T.Manager:%s\n", playerYear, tenureYearFrom, tenureYearTo, manager.getURI()));
+					}
+					//sb.append(String.format("P.Year:%d; T.From:%d; T.To:%d; T.Manager:%s\n", playerYear, tenureYearFrom, tenureYearTo, manager.getURI()));
+					
+				}
+				
+			}
+		}
+		
+		// print out managers in bag.
+		//NodeIterator nit = bagOfManagers.iterator();
+		for (String uri:setOfManagers) {
+			sb.append(String.format("%s\n",uri));
+		}
+		
+		return sb.toString();
+	}
+	
+	private static String solver4(Model model) {
+		// Which clubs have stadiums named after former presidents?
+		// TODO:
+		StringBuilder sb = new StringBuilder();
+		
+		Property namedAfter = model.createProperty(FSM.NS,FSM.NAMED_AFTER);
+		Property homeOf = model.createProperty(FSM.NS,FSM.HOME_OF);
+		
+		// 1) find stadiums named after president.
+		Selector selectNamedAfter = new SimpleSelector(null,namedAfter,(RDFNode)null);
+		StmtIterator it = model.listStatements(selectNamedAfter);
+		
+		//ResIterator listOfStadiums = model.listSubjectsWithProperty(namedAfter);
+		while (it.hasNext()) {
+			Statement stmt = it.nextStatement();
+			String clubKey = "";
+			String clubLiteral = "";
+			String stadiumKey = "";
+			String stadiumLiteral = "";
+			String presidentLiteral = "";
+			
+			Resource stadium = stmt.getSubject();	
+			stadiumKey = stadium.getURI();			// get stadium uri.
+			stadiumLiteral = Solver.findName(stadium, model);	// get stadium name.
+			RDFNode president = stmt.getObject();
+			if (president.isLiteral()) {
+				presidentLiteral = president.asLiteral().getString();
+			};
+			
+			NodeIterator listOfClubs = model.listObjectsOfProperty(stadium, homeOf);	// find clubs.
+			while (listOfClubs.hasNext()) {
+				RDFNode club = listOfClubs.nextNode();
+				if (club.isResource()) {
+					clubKey = club.asResource().getURI();
+					clubLiteral = Solver.findName(club.asResource(), model);
+				} else if (club.isLiteral()){
+					clubLiteral = club.asLiteral().getString();
+				}
 			}
 			
+			// generate output.
+			sb.append(String.format("%s\t%s\t%s\t%s\t%s\n",
+					clubKey,clubLiteral,stadiumKey,stadiumLiteral,presidentLiteral));
 			
 		}
 		
 		return sb.toString();
 	}
+	
+	private static String solver5(Model model) {
+		//Which teams have the most nationalities amongst their roaster?
+		// TODO:
+		StringBuilder sb = new StringBuilder();
+		
+		
+		
+		return sb.toString();
+	}
+	
+	
+	
 	
 	private static String findName(Resource subject, Model model) {
 		String literal = "";
@@ -438,7 +637,7 @@ public class Solver {
 	
 	private static boolean ssCompare (String s1, String s2) {
 		JaroWinkler jw = new JaroWinkler();
-		if (jw.score(s1, s2) > 0.9) {
+		if (jw.score(s1, s2) > 0.8) {
 			return true;
 		}
 		return false;

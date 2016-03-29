@@ -9,6 +9,8 @@ public class FSM {
 	public static String IS_A = "is_a";
 	public static String HAS_NAME = "has_name";
 	public static String HOME_OF = "home_of";
+	public static String PLAYS_FOR = "plays_for";
+	public static String NAMED_AFTER = "named_after";
 	//public static String KNOWN_AS = "known_as";
 	// Class
 	public static String PERSON = "person";
@@ -411,6 +413,130 @@ public class FSM {
 		
 		return trips;
 	}
-	
-	
+	public static Vector<Trip> findNamedAfter(String anchor, String[] words, String[] tags) {
+		Vector<Trip> trips = new Vector<Trip>();
+		
+		//String subject = "";
+		String object = "";
+		int state = 0;	// state index.
+		int index = 0;	// word index in sentence.
+		while (index < words.length) {
+			String word = words[index];
+			String tag = tags[index];
+			
+			switch (state) {
+				case 0:
+					if (word.matches("^named|renamed$")) {
+						state = 1;	// found the word "plays"; go to state 1.
+					} else {
+						state = 0;	// otherwise; stays here.
+					}
+					break;
+				case 1:
+					if (word.equals("after")) {
+						state = 2;	// found "after", go to state 2.
+					} else {
+						state = 6;	// unexpected; go to end.
+					}
+					break;
+				case 2:
+					if (word.equals("former")) {
+						state = 3;	// found "former", go to state 3.
+					} else {
+						state = 2;	// otherwise; stay here.
+					}
+					break;
+				case 3:
+					if (word.matches("^presidents?$")) {
+						state = 4;	// found president, go to state 4.
+					} else {
+						state = 3; 	// otherwise; stay here.
+					}
+					break;
+				case 4:
+					if (tag.matches("^NN.*$")) {
+						object = object.concat(word);	// add noun to object.
+						state = 5;						// go to 5.
+					} else {
+						state = 4;	// otherwise; stay here.
+					}
+					break;
+				case 5:
+					if (tag.matches("^NN.*$")) {
+						object = object.concat(" " + word);	// add noun to object.
+						state = 5;							// stay in 5.
+					} else {
+						state = 6;	// unexpected go to 6.
+					}
+				case 6:
+					break;
+				default:
+					break;
+					
+			}
+			
+			if (state==6) break;
+			index++;
+		}
+		
+		if (!object.isEmpty() && !anchor.isEmpty()) {
+			trips.add(new Trip(anchor, FSM.NAMED_AFTER, object));
+		}
+		return trips;
+	}
+	public static Vector<Trip> findPlaysFor(String anchor, String[] words, String[] tags) {
+		Vector<Trip> trips = new Vector<Trip>();
+		
+		//String subject = "";
+		String object = "";
+		int state = 0;	// state index.
+		int index = 0;	// word index in sentence.
+		
+		while (index < words.length) {
+			String word = words[index];
+			String tag = tags[index];
+			
+			switch (state) {
+			case 0:
+				if (word.matches("^plays|playing|played$")) {
+					state = 1;	// found the word "plays"; go to state 1.
+				} else {
+					state = 0;	// otherwise; stays here.
+				}
+				break;
+			case 1:
+				if (word.equalsIgnoreCase("for")) {
+					state = 2;	// found the word "for"; go to state 2;
+				} else {
+					state = 4;
+				}
+				break;
+			case 2:
+				if (tag.matches("^NN.*|JJ.*$")) {	// found a noun or adjective
+					object = object.concat(word);	// add noun to object.
+					state = 3;	// go to state 3;
+				} else {
+					state = 4;	// unexpected word. go to state 4;
+				}
+				break;
+			case 3:
+				if (tag.matches("^NN.*")) {
+					object = object.concat(" " + word);	// add noun to object.
+					state = 3;	// found a noun, add to object;
+				} else {
+					state = 4;	// no more noun. go to state 4;
+				}
+				break;
+			default:
+				break;
+			}
+			
+			index++;
+		}
+		if (!object.isEmpty() && !anchor.isEmpty()) {
+			trips.add(new Trip(anchor, FSM.PLAYS_FOR, object));
+		}
+		// TODO:  finish it.
+		return trips;
+	}
 }

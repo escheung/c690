@@ -8,11 +8,10 @@ public class TestJaccard {
 		// TODO Auto-generated method stub
 
 		
-		String s1 = "Bologna F.C.";
-		String s2 = "Bologna_FC";
+		String s1 = "A.C. Siena";
+		String s2 = "A_C_Siena";
 		String s3 = "Bologna";
 		String s4 = "/wikipedia/en/Reggina_Calcio";
-		
 		jaroCompare(s1,s2);
 		jaroCompare(s1,s3);
 		jaroCompare(s2,s3);

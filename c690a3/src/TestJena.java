@@ -15,16 +15,16 @@ public class TestJena {
 		Model model = RDFDataMgr.loadModel(SOURCE);
 		
 		Property prop = model.createProperty(NS,PROP);
-		
+		RDFNode object = model.createLiteral("Juan_Iturbe");
 		// find stuff
-		Resource resource = findLiteral("Juan Iturbe", prop, model);		
-		
-		if (resource != null) {
-			System.out.println(resource.getURI());
+		ResIterator rit = model.listSubjectsWithProperty(prop, object);		
+		while (rit.hasNext()) {
+			Resource r = rit.nextResource();
+			System.out.println("resource is:"+r.getURI());
 			
 		}
 
-		
+		//testDefaultModel();
 	}
 	
 	private static Resource findLiteral(String literalString, Property property, Model model) {
@@ -40,9 +40,8 @@ public class TestJena {
 			RDFNode o = stmt.getObject();
 			if (o.isLiteral()) {
 				String l = o.asLiteral().getString();
+				System.out.println("checking literal:"+l);
 				if (jaccardTest(l,literalString)) {
-				//if (l.equalsIgnoreCase("Juan_Iturbe")) {
-				//	System.out.println(String.format("%s\t%s\t%s\t%s",s.toString(),p.getNameSpace(),p.getLocalName(),o.asLiteral().getString()));
 					return s;
 				}
 			}
@@ -51,6 +50,19 @@ public class TestJena {
 		return resource;
 	}
 
+	private static void testDefaultModel() {
+		String NS = "http://rdf.freebase.com/key/";
+		String PROP = "wikipedia.en";
+		Model model = ModelFactory.createDefaultModel();
+		
+		Resource s = model.createResource(NS+"resource_1");
+		Property p = model.createProperty(NS, "is_a");
+		model.add(model.createLiteralStatement(s,p,"literal_1"));
+		
+		Resource s2 = findLiteral("literal_1",p,model);
+		System.out.println("default model found: "+s2.getURI());
+	}
+	
 	private static boolean jaccardTest (String s1, String s2) {
 		Jaccard jaccard = new Jaccard();
 		if (jaccard.score(s1, s2)==1.0) {
