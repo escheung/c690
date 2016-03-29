@@ -10,13 +10,13 @@ Linux, JAVA 1.8, Apache ANT, Apache JENA
 Unpack
 -------
 Unzip the package
-- run "tar -zxvf Extractor.tar.gz" to unpack the file.
+- run "tar -zxvf Solver.tar.gz" to unpack the file.
  
 -------
 Compile
 -------
 Using ANT:
-- from a terminal, go into the "Extractor" directory you just unpacked.
+- from a terminal, go into the "Solver" directory you just unpacked.
 - run "ant clean" to remove any previous compiled files.
 - run "ant build" to compile new set of class files.
 
@@ -24,9 +24,28 @@ Using ANT:
 Execute
 -------
 Using ANT:
-- from a terminal, go into the "Extractor" directory.
-- run "ant Start" to start execute the extraction application.
-- The outputs are stored in two files:
-    - "cmput690w16a2_cheung.tsv" for the primary objective.
-    - "cmput690w16a2_cheung_bonus.tsv" for the bonus objective.
+- from a terminal, go into the "Solver" directory.
+- run "ant Solver" to start execute the extraction application.
+
+-------
+Output
+-------
+- The solutions to the questions are stored in 5 tsv files, and a supporting output file for analysis:
+    - "cmput690w16a3_q1_cheung.tsv"
+        Format: [Stadium URI] [Stadium Name] [Team URI] [Team Name]
+        
+    - "cmput690w16a3_q2_cheung.tsv"
+        Format: [Player URI] [Player Name] [Team URI] [Team Name]
+        
+    - "cmput690w16a3_q3_cheung.tsv" (Who coaches a team with Spanish players?)
+        Format: [Manager URI]
+        
+    - "cmput690w16a3_q4_cheung.tsv" (Which clubs have stadiums named after former presidents?)
+        Format: [Team URI] [Team Name] [Stadium URI] [Stadium Name] [President Name]
+    
+    - "cmput690w16a3_q5_cheung.tsv" (Which teams have the most nationalities amongst their roaster?)
+        Format: [Team URI] [Team Name] [Number Of Nationalities]
+    
+    - "rdf_output.tsv" (Resulting output of merged graph)
+        Format: [Resource URI] [Property NameSpace] [Property LocalName] [Object URI/Literal]
 
