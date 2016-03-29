@@ -401,7 +401,8 @@ public class FSM {
 				trips.add(new Trip(anchor,FSM.IS_A,FSM.PERSON));
 				trips.add(new Trip(anchor,FSM.IS_A,FSM.FOOTBALLER));
 				// apply nationality if available.
-				if (!keyJJ.isEmpty()) {
+				if (!keyJJ.isEmpty() && !keyJJ.equalsIgnoreCase("international")) {
+					keyJJ = keyJJ.replace("-born", "");
 					trips.add(new Trip(anchor,FSM.NATIONALITY,keyJJ));
 				}
 			} else if (object.endsWith("stadium")) {	// is a stadium

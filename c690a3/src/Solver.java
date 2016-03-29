@@ -1,15 +1,20 @@
 import java.io.PrintWriter;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+
 import java.util.Set;
 import java.util.Vector;
 
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
-
 
 import com.wcohen.ss.JaroWinkler;
 
@@ -513,7 +518,6 @@ fb:m.01144qm8	fb:soccer.football_team_management_tenure.from	"2009-10-24"^^xsd:d
 	
 	private static String solver4(Model model) {
 		// Which clubs have stadiums named after former presidents?
-		// TODO:
 		StringBuilder sb = new StringBuilder();
 		
 		Property namedAfter = model.createProperty(FSM.NS,FSM.NAMED_AFTER);
@@ -565,8 +569,53 @@ fb:m.01144qm8	fb:soccer.football_team_management_tenure.from	"2009-10-24"^^xsd:d
 		// TODO:
 		StringBuilder sb = new StringBuilder();
 		
+		Property rosterTeam = model.createProperty(Solver.FreebaseNameSpace,Solver.FreebaseRosterTeam);
+		Property rosterPlayer = model.createProperty(Solver.FreebaseNameSpace,Solver.FreebaseRosterPlayer);
+		Property nationality = model.createProperty(FSM.NS,FSM.NATIONALITY);
 		
+		// 1. Get list of teams with roster.
+		NodeIterator listOfTeams = model.listObjectsOfProperty(rosterTeam);
+		Set<RDFNode> setOfTeams = listOfTeams.toSet();
+		Map<Resource,Integer> rank = new HashMap<Resource, Integer>();
 		
+		// 2. For each team, get its roster nodes.
+		for (RDFNode teamKey: setOfTeams) {
+			
+			ResIterator listOfRosters = model.listResourcesWithProperty(rosterTeam, teamKey);
+			Set<String> nationalitySet = new HashSet<String>();
+			
+			// 3. For each roster, get all its players.
+			while (listOfRosters.hasNext()) {	
+				
+				NodeIterator listOfPlayers = model.listObjectsOfProperty(listOfRosters.nextResource(),rosterPlayer);
+				
+				while (listOfPlayers.hasNext()) {
+					
+					NodeIterator listOfNation = model.listObjectsOfProperty(listOfPlayers.nextNode().asResource(), nationality);
+					
+					if (listOfNation.hasNext()) {
+						RDFNode nat = listOfNation.nextNode();
+						if (nat.isLiteral()) {
+							nationalitySet.add(nat.asLiteral().getString());
+							
+						}
+					}
+					
+					
+				}
+			}
+			
+			//System.out.print(teamKey.asResource().getURI());
+			//System.out.println(Arrays.toString(nationalitySet.toArray()));
+			rank.put(teamKey.asResource(), nationalitySet.size());
+			
+		}
+		
+		rank = Solver.sortByValue(rank);	// Sorting map by value (reverse).
+		
+		for (Resource team:rank.keySet()) {
+			sb.append(String.format("%s\t%s\t%d\n", team.getURI(),Solver.findName(team, model),rank.get(team)));
+		}
 		return sb.toString();
 	}
 	
@@ -642,4 +691,21 @@ fb:m.01144qm8	fb:soccer.football_team_management_tenure.from	"2009-10-24"^^xsd:d
 		}
 		return false;
 	}
+
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue( Map<K, V> map ) {
+		// This method was found at: http://stackoverflow.com/questions/109383/sort-a-mapkey-value-by-values-java
+		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>( map.entrySet() );
+		Collections.sort( list, new Comparator<Map.Entry<K, V>>() {
+			public int compare( Map.Entry<K, V> o1, Map.Entry<K, V> o2 ) {
+				//return (o1.getValue()).compareTo( o2.getValue() );
+				return (o2.getValue()).compareTo( o1.getValue() );
+			}
+		} );
+		
+		Map<K, V> result = new LinkedHashMap<K, V>();
+		for (Map.Entry<K, V> entry : list) {
+			result.put( entry.getKey(), entry.getValue() );
+		}
+		return result;
+}
 }

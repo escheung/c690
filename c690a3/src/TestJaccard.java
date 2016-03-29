@@ -18,6 +18,10 @@ public class TestJaccard {
 		
 		//jCompare(s1,s2);
 		
+		String born = "Argentine-born";
+		
+		born = born.replace("-born","");
+		System.out.println(born);
 	}
 
 	private static void jaroCompare(String s, String t) {
