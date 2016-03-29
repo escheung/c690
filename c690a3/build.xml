@@ -36,6 +36,9 @@
         <pathelement location="lib/jena/slf4j-log4j12-1.7.12.jar"/>
         <pathelement location="lib/jena/xercesImpl-2.11.0.jar"/>
         <pathelement location="lib/jena/xml-apis-1.4.01.jar"/>
+        <pathelement location="lib/secondstring/secondstring-20120620.jar"/>
+        <pathelement location="lib/stanford/stanford-ner.jar"/>
+        <pathelement location="lib/stanford/stanford-postagger.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -67,6 +70,19 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
     <target name="Solver">
         <java classname="Solver" failonerror="true" fork="yes">
             <classpath refid="c690a3.classpath"/>

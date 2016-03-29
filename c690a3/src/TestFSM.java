@@ -8,8 +8,7 @@ public class TestFSM {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 
-		//String text = "Wayne Gretzky is a American footballer.  He is also called The Great One.";
-		String text = "Teresa Rivero, or rivero, is a multi-use stadium in Madrid.  The stadium (or field) is the home ground of Deportivo de La Coruña Football Club";
+		String text = "Wayne Gretzky is a American footballer.  He is also called The Great One.";
 		Engine engine = new Engine();
 		
 		
