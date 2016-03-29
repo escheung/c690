@@ -45,13 +45,7 @@ public class Solver {
 	private static final String FreebaseTenureTeam = "soccer.football_team_management_tenure.team";
 	private static final String FreebaseTenureManager = "soccer.football_team_management_tenure.manager";
 	
-	/*
-	 * fb:m.0l3ljcs	fb:soccer.football_team_management_tenure.manager	fb:m.026zdf9 .
-fb:m.0l3ljcs	fb:soccer.football_team_management_tenure.to	"1982-04"^^xsd:gYearMonth .
-fb:m.0l3ljcs	fb:soccer.football_team_management_tenure.team	fb:m.06l2
-fb:m.01144qm8	fb:soccer.football_team_management_tenure.from	"2009-10-24"^^xsd:date .
-	 */
-	
+
 	public static void main(String[] args) throws Exception {
 
 	
@@ -82,7 +76,6 @@ fb:m.01144qm8	fb:soccer.football_team_management_tenure.from	"2009-10-24"^^xsd:d
 		// Create Engine for parsing and NER classifier.
 		Engine engine = new Engine();
 		
-				
 		// get a list of 'documents' text from the model.
 		Map<Resource,String> docMap = getDocuments(model);
 		
@@ -566,7 +559,6 @@ fb:m.01144qm8	fb:soccer.football_team_management_tenure.from	"2009-10-24"^^xsd:d
 	
 	private static String solver5(Model model) {
 		//Which teams have the most nationalities amongst their roaster?
-		// TODO:
 		StringBuilder sb = new StringBuilder();
 		
 		Property rosterTeam = model.createProperty(Solver.FreebaseNameSpace,Solver.FreebaseRosterTeam);

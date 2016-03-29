@@ -31,7 +31,7 @@ public class Engine {
 	public Engine() throws Exception {
 		
 		tagger = new MaxentTagger(posModel);
-		classifier = CRFClassifier.getClassifier(serializedClassifier);
+		//classifier = CRFClassifier.getClassifier(serializedClassifier); // Not needed for this assignment?!
 		
 	}
 	
