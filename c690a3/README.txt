@@ -16,7 +16,7 @@ Unzip the package
 Compile
 -------
 Using ANT:
-- from a terminal, go into the "Solver" directory you just unpacked.
+- from a terminal, go into the "c690a3" directory you just unpacked.
 - run "ant clean" to remove any previous compiled files.
 - run "ant build" to compile new set of class files.
 
@@ -24,17 +24,17 @@ Using ANT:
 Execute
 -------
 Using ANT:
-- from a terminal, go into the "Solver" directory.
+- from a terminal, go into the "c690a3" directory.
 - run "ant Solver" to start execute the extraction application.
 
 -------
 Output
 -------
 - The solutions to the questions are stored in 5 tsv files, and a supporting output file for analysis:
-    - "cmput690w16a3_q1_cheung.tsv"
+    - "cmput690w16a3_q1_cheung.tsv" (Which stadiums are used by which clubs?)
         Format: [Stadium URI] [Stadium Name] [Team URI] [Team Name]
         
-    - "cmput690w16a3_q2_cheung.tsv"
+    - "cmput690w16a3_q2_cheung.tsv" (Who plays for which teams?)
         Format: [Player URI] [Player Name] [Team URI] [Team Name]
         
     - "cmput690w16a3_q3_cheung.tsv" (Who coaches a team with Spanish players?)
