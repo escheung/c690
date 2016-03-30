@@ -4,7 +4,7 @@ c690 assignment 3
 ------------
 Requirements
 ------------
-Linux, JAVA 1.8, Apache ANT, Apache JENA
+Linux, JAVA 1.8, Apache ANT, Apache JENA, Stanford NLP, SecondString
 
 -------
 Unpack
