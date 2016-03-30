@@ -44,8 +44,9 @@ Output
         Format: [Team URI] [Team Name] [Stadium URI] [Stadium Name] [President Name]
     
     - "cmput690w16a3_q5_cheung.tsv" (Which teams have the most nationalities amongst their roaster?)
+        Order: Descending order based on number of nationalities among the players.
         Format: [Team URI] [Team Name] [Number Of Nationalities]
     
     - "rdf_output.tsv" (Resulting output of merged graph)
         Format: [Resource URI] [Property NameSpace] [Property LocalName] [Object URI/Literal]
-
+        

@@ -397,7 +397,12 @@ public class FSM {
 		if (!subject.isEmpty() && !object.isEmpty()) {	// found subject and object.
 			trips.add(new Trip(anchor,FSM.IS_A,object));
 			trips.add(new Trip(anchor,FSM.HAS_NAME,subject));
-			if (object.contains("footballer")) {	// a footballer is a person.
+			if (object.contains("footballer") || 
+					object.equals("football player") ||
+					object.contains("football midfielder") ||
+					object.contains("football defender") ||
+					object.contains("goalkeeper") ||
+					object.contains("football striker")) {	// a footballer is a person.
 				trips.add(new Trip(anchor,FSM.IS_A,FSM.PERSON));
 				trips.add(new Trip(anchor,FSM.IS_A,FSM.FOOTBALLER));
 				// apply nationality if available.
@@ -537,7 +542,6 @@ public class FSM {
 		if (!object.isEmpty() && !anchor.isEmpty()) {
 			trips.add(new Trip(anchor, FSM.PLAYS_FOR, object));
 		}
-		// TODO:  finish it.
 		return trips;
 	}
 }

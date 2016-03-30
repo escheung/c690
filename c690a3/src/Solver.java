@@ -110,9 +110,8 @@ public class Solver {
 		writer5.print(solver5(model));
 		writer5.close();
 		
-		//TODO: solve the rest.
-		
 	}
+	
 	private static void processAnchor(Engine engine, Model model, Map<Resource,String> docs) {
 		// process document to link names to keys
 		
@@ -415,7 +414,6 @@ public class Solver {
 	
 	private static String solver3(Model model) {
 		// Who coaches a team with Spanish players?
-		// TODO:
 		StringBuilder sb = new StringBuilder();
 
 		Property rosterPlayer = model.createProperty(Solver.FreebaseNameSpace,Solver.FreebaseRosterPlayer);
@@ -489,19 +487,18 @@ public class Solver {
 					
 					// check if year is within bound.
 					if ((playerYear <= tenureYearTo) && (playerYear >= tenureYearFrom)) {
-						//bagOfManagers.add(manager);
+						
 						setOfManagers.add(manager.getURI());
-						//sb.append(String.format("P.Year:%d; T.From:%d; T.To:%d; T.Manager:%s\n", playerYear, tenureYearFrom, tenureYearTo, manager.getURI()));
+						
 					}
-					//sb.append(String.format("P.Year:%d; T.From:%d; T.To:%d; T.Manager:%s\n", playerYear, tenureYearFrom, tenureYearTo, manager.getURI()));
+					
 					
 				}
 				
 			}
 		}
 		
-		// print out managers in bag.
-		//NodeIterator nit = bagOfManagers.iterator();
+		// print out managers.
 		for (String uri:setOfManagers) {
 			sb.append(String.format("%s\n",uri));
 		}
@@ -597,8 +594,6 @@ public class Solver {
 				}
 			}
 			
-			//System.out.print(teamKey.asResource().getURI());
-			//System.out.println(Arrays.toString(nationalitySet.toArray()));
 			rank.put(teamKey.asResource(), nationalitySet.size());
 			
 		}
@@ -663,20 +658,8 @@ public class Solver {
 		return sb.toString();
 	}
 	
-
-	
-	private static void testModel(Model m) {
-		//Literal footballer = m.createLiteral("footballer","en");
-		//Literal carlo = m.createLiteral("Carlo","en");
-		Property isA = m.createProperty("c690","isA");
-		Resource footballer = m.createResource("somewhere.com/footballer");
-		Resource carlo = m.createResource("somewhere.com/Carlo");
-		Statement s = m.createStatement(carlo, isA, footballer);
-		m.add(s);
-		
-	}
-	
 	private static boolean ssCompare (String s1, String s2) {
+		// String distance measurement
 		JaroWinkler jw = new JaroWinkler();
 		if (jw.score(s1, s2) > 0.8) {
 			return true;
