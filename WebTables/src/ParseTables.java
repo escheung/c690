@@ -2,14 +2,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ParseTables {
 
@@ -129,6 +125,7 @@ public class ParseTables {
 				break;
 				}
 			}
+			br.close();
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}
