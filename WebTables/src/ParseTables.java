@@ -317,6 +317,9 @@ public class ParseTables {
 		if (text == null) return null;
 		String result = text;
 		
+		
+		
+		
 		while (result.startsWith("!") ||
 				result.startsWith("|") ||
 				result.startsWith(" ") ||
@@ -341,6 +344,82 @@ public class ParseTables {
 			result = result.replaceAll("^\\{|\\}$", "");	// remove leading and trailing bracket.
 			
 		};
+		
+		// get stuff in first square bracket; if any.
+		String inSquareBracket = ContentInBracket(result);
+		if (!inSquareBracket.isEmpty()) {
+			result = inSquareBracket;
+		};
+		
+
+		if (result.contains("|")) {
+			// split by pipe "|"
+			String[] cs = result.split("\\|");
+			for (String c:cs) {
+				if (c.contains("align=") || 
+					c.contains("span=") ||
+					c.contains("sortname") ||
+					c.contains("&lt") ||
+					c.contains("&gt") )	{
+				} else {
+					result = c;	// use 'good' cell.
+					break;
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	public static String ContentInBracket(String text) {
+		// find content in first complete square bracket. i.e. [xxxx]
+		String result = "";
+		
+		StringReader sr = new StringReader(text);
+		try {
+			int c = 0;		// current character.
+			int state = 0;	// state machine.
+			StringBuilder buffer = new StringBuilder();
+			while (( c = sr.read()) > 0) {
+				switch (state) {
+				case 0:
+					if (c == '[') {						// found open bracket
+						state = 1;						// go to state 1;
+					}
+					break;
+				case 1:
+					if (c == '[') {						// open square bracket
+						state = 1;
+					} else if (c == ']') {				// close square bracket
+						state = 9;						// go to state 9;
+					} else {							// other characters
+						buffer.append((char)c);			// add character to buffer
+						state = 2;						// go to state 2;
+					}
+					break;
+				case 2:
+					if (c == '[') {						// found open bracket	
+						state = 1;						// go to state 1;
+						buffer = new StringBuilder();	// empty result.
+					} else if (c == ']') {				// found close square bracket.
+						result = buffer.toString();		// write buffer to result.
+						state = 9;						// go to state 9;
+					} else {
+						buffer.append((char)c);			// add character to buffer.
+						state = 2;						// stay in state 2;
+					}
+					break;
+				case 9:
+					break;
+				}	
+				if (state == 9) {	// if state = 9;
+					break;			// exit loop.
+				}
+			}
+				
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
 		return result;
 	}
 	

@@ -17,6 +17,17 @@ public class TestParseTables {
 		
 		TestParseDataRow();
 		
+		TestContentInBracket();
+	}
+	
+	protected static void TestContentInBracket() {
+		
+		String text = "[Naples Airport]] &lt;sup&gt;[Base]&lt;/sup&gt;";
+		
+		String result = ParseTables.ContentInBracket(text);
+		System.out.println("Testing ContentInBracket");
+		System.out.println(result);
+		
 	}
 	
 	protected static void TestCleanCell() {

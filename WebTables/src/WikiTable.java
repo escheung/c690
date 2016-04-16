@@ -154,4 +154,14 @@ public class WikiTable {
 		
 		return result;
 	}
+	
+	public String cleanCell(String cell) {
+		String entity = "";
+		
+		
+		
+		return entity;
+	}
+	
+	
 }
