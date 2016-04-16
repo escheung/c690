@@ -51,6 +51,10 @@ public class Engine {
 			
 			// get disambiguation resources as candidates.
 			candidates = getDisams(firstMatch);
+			if (candidates.isEmpty()) {	// not disambiguation page.
+				candidates.add(firstMatch);	// add the resource found to to candidate list.
+			}
+			/*
 			if (candidates.isEmpty()) { // no disambiguation found.
 				// reverse lookup for disambiguations
 				Resource revMatch = getDisamReverse(firstMatch);
@@ -61,10 +65,11 @@ public class Engine {
 					candidates.add(firstMatch);
 				}
 			}
+			*/
 			
 		} else {
 			// Unable to find a label from term.
-			// TODO: figure out what to do when it's done.
+			// TODO: figure out what to do if no label matches.
 		}
 		
 		return candidates;
@@ -142,7 +147,7 @@ public class Engine {
 		return null;
 	}
 	
-	public List<Resource> getParents(Resource type) {
+	public List<Resource> getAncestors(Resource type) {
 		// get the chain of superclass.
 		List<Resource> chain = new ArrayList<Resource>();
 		Model model = ds_ontology.getDefaultModel();
@@ -156,7 +161,7 @@ public class Engine {
 			if (it.hasNext()) {
 				RDFNode node = it.next();
 				if (node.isResource()) {
-					chain.addAll(getParents(node.asResource()));	// recursive call to get ancestors.
+					chain.addAll(getAncestors(node.asResource()));	// recursive call to get ancestors.
 				}
 			}
 		}

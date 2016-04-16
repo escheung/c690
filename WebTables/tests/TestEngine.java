@@ -119,7 +119,7 @@ public class TestEngine {
 		Resource type = engine.getInstanceType(resource);
 		long startTime = System.nanoTime();
 		if (type!=null) {
-			List<Resource> parents = engine.getParents(type);
+			List<Resource> parents = engine.getAncestors(type);
 			Iterator<Resource> it = parents.iterator();
 			while (it.hasNext()) {
 				Resource t = it.next();
