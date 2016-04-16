@@ -176,8 +176,8 @@ public class ParseTables {
 						header.addAll(Arrays.asList(arr));
 						state = 5;
 					} else if (line.startsWith(TableHeaderCell)) {	// header cell '!'
-						String cell = CleanCell(line);	// clean up cell to get data.
-						header.add(cell);					// add cell to column.
+						//String cell = CleanCell(line);	// clean up cell to get data.
+						header.add(line);					// add cell to column.
 						state = 3;						// go to state 3
 					} else {
 						message = "State 1: Table Start.";
@@ -196,12 +196,12 @@ public class ParseTables {
 						cols.addAll(Arrays.asList(arr));
 						state = 6;
 					} else if (line.startsWith(TableHeaderCell)) {	// header cell
-						String cell = CleanCell(line);	// clean up cell to get data.
-						header.add(cell);					// add cell to column.
+						//String cell = CleanCell(line);	// clean up cell to get data.
+						header.add(line);					// add cell to column.
 						state = 3;						// go to state 3
 					} else if (line.startsWith(TableDataCell)) {	// data cell
-						String cell = CleanCell(line);	// clean up cell to get data
-						cols.add(cell);					// add cell to column. 
+						//String cell = CleanCell(line);	// clean up cell to get data
+						cols.add(line);					// add cell to column. 
 						state = 4;						// go to state 4
 					} else {
 						message = "State 2: Table Row";
@@ -215,8 +215,8 @@ public class ParseTables {
 						// header already stored in arraylist.
 						state = 2;						// go back to state 2.
 					} else if (line.startsWith(TableHeaderCell)) {	// '!'
-						String cell = CleanCell(line);	// clean up cell to get header.
-						header.add(cell);				// add cell to header arraylist
+						//String cell = CleanCell(line);	// clean up cell to get header.
+						header.add(line);				// add cell to header arraylist
 						state = 3;						// stay in state 3
 					} else if (line.contains(TableDataRow)) {	// combined data row '||'
 						String[] arr = ParseTables.parseDataRow(line);
@@ -236,7 +236,7 @@ public class ParseTables {
 						cols.clear();					// clear columns buffer.
 						state = 2;						// go to state 2
 					} else if (line.startsWith(TableDataCell)) {	// data cell '|'
-						cols.add(CleanCell(line));		// add cleaned cell to column.
+						cols.add(line);		// add cleaned cell to column.
 						state = 4;						// go to state 4
 					} else {
 						message = "State 4: Data Cell";
@@ -287,7 +287,7 @@ public class ParseTables {
 	}
 	
 	public static String TableToText(ArrayList<String> header, ArrayList<ArrayList<String>> table) {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder tableString = new StringBuilder();
 	
 		/*
 		// Print table header.	
@@ -299,16 +299,37 @@ public class ParseTables {
 		*/
 		
 		// Print table content.
-		for (ArrayList<String> row:table) {
-			for (String cell:row) {
-				sb.append(String.format("%s\t", cell));
-				
+		int colSize = 0;
+		for (ArrayList<String> cols:table) {
+			StringBuilder rowString = new StringBuilder();
+			boolean badrow = false;
+			if (colSize==0) {
+				colSize = cols.size();
+			} else if (colSize != cols.size()) {	// this row has different number of columns.
+				badrow = true;
+				continue;	// skip this row.
 			}
-			sb.append('\n');
+			
+			for (String cell:cols) {
+				if (cell.contains("rowspan")) {
+					badrow = true;
+					break;
+				}
+				cell = CleanCell(cell);				// extract good content from cell.
+				if (cell.isEmpty()) {
+					badrow = true;
+					break;
+				}
+				rowString.append(String.format("%s\t", cell));	// append cell to row string.
+			}
+			
+			if (!badrow) {	// if row is not bad.
+				tableString.append(rowString);	// write row string.
+				tableString.append('\n');		// write newline.
+			}
 		}
 		
-		
-		return sb.toString();
+		return tableString.toString();
 		
 	}
 	
@@ -316,10 +337,6 @@ public class ParseTables {
 		// clean data cell by stripping leading spaces, !, |, and surrounding brackets and quotes.
 		if (text == null) return null;
 		String result = text;
-		
-		
-		
-		
 		while (result.startsWith("!") ||
 				result.startsWith("|") ||
 				result.startsWith(" ") ||
@@ -361,8 +378,10 @@ public class ParseTables {
 					c.contains("sortname") ||
 					c.contains("&lt") ||
 					c.contains("&gt") )	{
+					
+					
 				} else {
-					result = c;	// use 'good' cell.
+					result = c;	// use first 'good' cell.
 					break;
 				}
 			}
@@ -434,7 +453,7 @@ public class ParseTables {
 		}
 		
 		for (int i=0; i<result.length; i++) {
-			result[i] = CleanCell(result[i]);
+			result[i] = result[i];
 		}
 		return result;
 	}
@@ -443,7 +462,7 @@ public class ParseTables {
 		
 		String[] result = text.split("\\|\\|");
 		for (int i=0; i<result.length; i++) {
-			result[i] = CleanCell(result[i]);
+			result[i] = result[i];
 		}
 		return result;
 	}
