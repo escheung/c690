@@ -24,7 +24,7 @@ public class WikiTable {
 		
 	WikiTable (File tsvfile) {
 		
-		if (!parseTsvFile(tsvfile)) {	// if failed parsing tsv file.
+		if (!parseTsvFile(tsvfile)) {	// if failed to parse tsv file.
 			rowSize=0;
 			colSize=0;
 		};
@@ -48,21 +48,27 @@ public class WikiTable {
 	}
 	
 	public void processTableForCandidates(Engine engine) {
-		
+		// process each cell in table to find suitable candidates using given 'engine'.
 		for (int r=0; r<rowSize; r++) {	// for each row
 			for (int c=0; c<colSize; c++) {		// for each column
 				candidates[r][c] = engine.findCandidates(table[r][c]);	// find potential candidates
 			}
 		}
+	}
+	
+	public void processTableForProperties(Engine engine) {
+		
 		
 	}
 	
-	public void processTableForTypes(Engine engine) {
+	public List<Map<Resource, Integer>> processTableForTypes(Engine engine) {
 		
-		List<Resource> columnTypes = new ArrayList<Resource>();
+		//List<Resource> columnTypes = new ArrayList<Resource>();
+		List<Map<Resource, Integer>> listOfTypeMaps= new ArrayList<Map<Resource,Integer>>();
 		
 		for (int c=0; c<colSize; c++) {	// for each column.
 			Map<Resource, Integer> typeMap = new HashMap<Resource, Integer>();
+			//Map<Resource, Integer> sortedMap = new HashMap<Resource, Integer>();
 			System.out.println("Column: "+c);
 			for (int r=0; r<rowSize; r++) {	// for each row.
 				Iterator<Resource> it = candidates[r][c].iterator();
@@ -84,14 +90,20 @@ public class WikiTable {
 				}
 			}	// end of row
 			
-			Map<Resource, Integer> sortedMap = sortByValue(typeMap);
-			Set<Resource> sortedKey = sortedMap.keySet();
-			for (Resource key:sortedKey) {
-				System.out.println(String.format("\t%s\t%d", key.getURI(),typeMap.get(key)));
-			}
-			
+			//sortedMap = sortByValue(typeMap);
+			listOfTypeMaps.add(sortByValue(typeMap));
 		}	// end of column.
-		
+		return listOfTypeMaps; 
+	}
+	
+	public String printOrderedTypes(Map<Resource, Integer> sortedMap) {
+		// print ordered types from map as String.
+		StringBuilder sb = new StringBuilder();
+		Set<Resource> sortedKey = sortedMap.keySet();
+		for (Resource key:sortedKey) {
+			sb.append(String.format("%s\t%d\n", key.getURI(),sortedMap.get(key)));
+		}
+		return sb.toString();
 	}
 	
 	private boolean parseTsvFile(File tsvfile) {
@@ -103,7 +115,6 @@ public class WikiTable {
 		try {
 			String line = "";
 			BufferedReader br = new BufferedReader(new FileReader(tsvfile));
-			
 			
 			while ((line=br.readLine())!=null) {	// for each line
 				// split line by tabs.
@@ -128,16 +139,16 @@ public class WikiTable {
 
 		// create 2D String array to store content.
 		if (rowCount>0 && colCount>0) {
-			rowSize = rowCount;
-			colSize = colCount;
-			table = new String[rowCount][colCount];
-			candidates = new ArrayList[rowCount][colCount];
+			this.rowSize = rowCount;
+			this.colSize = colCount;
+			this.table = new String[rowCount][colCount];
+			this.candidates = new ArrayList[rowCount][colCount];
 			
 			for (int r=0; r<rowCount; r++) {
 				List<String> column = tableList.get(r);
 				for (int c=0; c<colCount; c++) {
 					
-					table[r][c] = column.get(c);
+					this.table[r][c] = column.get(c);
 					
 				}
 			}
@@ -155,13 +166,32 @@ public class WikiTable {
 		return result;
 	}
 	
-	public String cleanCell(String cell) {
-		String entity = "";
+	public String[] topRanked(Map<Resource, Integer> map) {
+		// return an array of instance types that have the most 'vote'.
 		
+		Set<Entry<Resource,Integer>> entrySet = map.entrySet();
 		
+		int max = 0;
+		List<String> best = new ArrayList<String>();
 		
-		return entity;
+		for (Entry<Resource,Integer> entry:entrySet) {
+			if (entry.getKey().getLocalName().equalsIgnoreCase("Thing")) {
+				continue;	// skip type if it's a "Thing" class.
+			}
+			if (entry.getValue() > max) {
+				best = new ArrayList<String>();	// reset list.
+				best.add(entry.getKey().getLocalName());			// add 'type' to best list.
+				max = entry.getValue();
+			} else if (entry.getValue()== max) {
+				best.add(entry.getKey().getLocalName());			// add 'type' to best list.
+			};
+			
+		}
+		
+		return best.toArray(new String[0]);
 	}
+	
+
 	
 	
 }

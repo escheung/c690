@@ -1,6 +1,8 @@
 import java.io.File;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.jena.rdf.model.Resource;
 
@@ -13,13 +15,13 @@ public class TestWikiTable {
 		// TODO Auto-generated method stub
 
 		
-		TestWikiTable();
+		TestingWikiTable();
 		
 		
 	}
 	
 
-	protected static void TestWikiTable() {
+	protected static void TestingWikiTable() {
 				
 		System.out.println("Testing TestWikiTable");
 		
@@ -39,7 +41,20 @@ public class TestWikiTable {
 		table.processTableForCandidates(engine);
 		printCandidates(table);
 		
-		table.processTableForTypes(engine);
+		System.out.println("Testing ProcessTableForTypes");
+		List<Map<Resource, Integer>> listOfTypeMaps = table.processTableForTypes(engine);
+		Iterator<Map<Resource,Integer>> itmap = listOfTypeMaps.iterator();
+		while (itmap.hasNext()) {
+			System.out.println("----------------");
+			Map<Resource,Integer> map = itmap.next();
+			System.out.println("-Full Ordered List-");
+			System.out.println(table.printOrderedTypes(map));
+			
+			System.out.println("-Top Types-");
+			System.out.println(Arrays.toString(table.topRanked(map)));
+			
+		}
+		
 		
 	}
 	
