@@ -1,12 +1,6 @@
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -15,41 +9,104 @@ import org.apache.jena.rdf.model.Resource;
 
 public class Start {
 
+	private static String ResourceFolder = "resource";
 	private static String TableFolder = "resource/tables";
 	
 	public static void main(String[] args) {
 		
+		// stats counters
+		int tableCount=0;
+		int tableFailCount=0;
+		long startTime = System.nanoTime() ;
+		//int totalColCount=0;
+		//int totalColResovled=0;
+		//int totalRowCount=0;
+		
 		// Engine for processing datasets.
 		Engine engine = new Engine();
 		
+		// prepare summary tsv file
+		File summaryfile = new File(ResourceFolder,"Summary.tsv");
 		
 		// get list of tsv files.
-		File[] tsvfiles = GetListOfFiles(TableFolder,"Greater_Los_Angeles_Area_3.tsv");
+		File[] tsvfiles = GetListOfFiles(TableFolder,"59th_National_Hockey_League_All-Star_Game_0.tsv");
+		
+		// Summary text.
+		StringBuilder summarysb = new StringBuilder();
 		
 		// parse tsv file for key terms.
 		for (File inputfile: tsvfiles) {
+			int colCount=0;			// columns
+			int colResolved=0;		// columns resolved
+			int rowCount=0;			// rows
+			tableCount++;			// increment table count.
+			
 			// parse table from tsv file.
 			WikiTable table = new WikiTable(inputfile);
+			// prepare output file for result.
+			String tablename = FilenameUtils.removeExtension(inputfile.getName());
+			String resultfn = String.format("%s_out.txt", tablename);
+			File outputfile = new File(TableFolder,resultfn);
+			StringBuilder outputsb = new StringBuilder();	// table output file.
 			
 			if (table.ready()) {
-				// prepare output file for result.
-				String resultfn = String.format("%s_out.txt", FilenameUtils.removeExtension(inputfile.getName()));
-				File outputfile = new File(TableFolder,resultfn);
+				rowCount = table.getRowSize();				// row count.
+				colCount = table.getColSize();				// col count.		
 				
-				// process each table.
+				List<Map<Resource, Integer>> classMaps;
+				
+				// process each table for candidates.
 				table.processTableForCandidates(engine);	// discover potential candidates for each cell.
-				// TODO: find common instance type.
-				table.processTableForTypes(engine);			// process column candidates to find instance types.
+				
+				// process each table for top instance type.
+				classMaps = table.processTableForTypes(engine);			// process column candidates to find instance types.
+				colResolved = table.columnsResolved();		// resolved col count.
+				
+				// process table for properties.
+				// TODO: process table for properties
+				
+				
+				// write class maps.
+				outputsb.append(table.printTopClasses(classMaps));
+				
+				// write properties.
+				// TODO: Write properties result to file.
 				
 				
 			} else {
 				// table not available for processing.
-				//TODO: error message.
+				System.err.println("Error! Unable to process table: "+inputfile.getName());
+				tableFailCount++;		// failed table counter increment.
 			}
+			
+			// Write table summary to string.
+			// <TableName> <# of rows> <# of cols> <# of cols with class>
+			summarysb.append(String.format("%s\t%d\t%d\t%d\n", tablename,rowCount,colCount,colResolved));
+			
+			// write table output text to file.
+			try {
+				PrintWriter outputWriter  = new PrintWriter(outputfile,"UTF-8");
+				outputWriter.println(outputsb.toString());	// write output string to file.
+				outputWriter.close();
+			} catch (Exception e) {
+				System.err.print(e.toString());
+			}
+			
 		}
 		
+		try {
+			PrintWriter summaryWriter = new PrintWriter(summaryfile,"UTF-8");
+			summaryWriter.println(summarysb.toString()); 	// Write summary string to file.
+			summaryWriter.close();
+		} catch (Exception e) {
+			System.err.print(e.toString());
+		}
+		long endTime = System.nanoTime() ;
+		double timeUsed = (endTime-startTime)/1.0e9 ;
+		System.out.println(String.format("Table Count:%d\tTable Error:%d\tTime Taken:%.2fs\n", tableCount, tableFailCount, timeUsed));
+		
 	}
-	
+
 	/*
 	private static String ProcessTypes(List<List<List<Resource>>> candidates) {
 		// process all candidates and assign instance Type for the columns.
@@ -68,7 +125,7 @@ public class Start {
 			while (colIt.hasNext()) {
 				List<Resource> cell = colIt.next();		// this cell.
 				
-				// TODO: Not sure what to do here yet.  
+				
 				
 			}
 		}
@@ -114,6 +171,7 @@ public class Start {
 		return allCandidates;
 	}
 	*/
+	/*
 	private static String PrintTable(List<List<String>> table) {
 		
 		StringBuilder sb = new StringBuilder();
@@ -131,7 +189,7 @@ public class Start {
 		
 		return sb.toString();
 	}
-	
+	*/
 	/*
 	private static List<List<String>> ParseTsvFile(File tsvfile) {
 		

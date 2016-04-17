@@ -49,11 +49,14 @@ public class TestWikiTable {
 			Map<Resource,Integer> map = itmap.next();
 			System.out.println("-Full Ordered List-");
 			System.out.println(table.printOrderedTypes(map));
-			
-			System.out.println("-Top Types-");
-			System.out.println(Arrays.toString(table.topRanked(map)));
-			
 		}
+		
+		System.out.println("Testing PrintTopClasses");
+		System.out.println(table.printTopClasses(listOfTypeMaps));
+		
+		
+		System.out.println("*** All Resolved Columns ***");
+		System.out.println(table.columnsResolved());
 		
 		
 	}

@@ -148,12 +148,15 @@ public class Engine {
 	}
 	
 	public List<Resource> getAncestors(Resource type) {
-		// get the chain of superclass.
+		// get the chain of all super class.
 		List<Resource> chain = new ArrayList<Resource>();
 		Model model = ds_ontology.getDefaultModel();
 		Property property = model.createProperty(NS_rdfs, LN_subclass);
 
-		if (type!=null) {
+		if (type==null) return chain;	// if type is null, return empty chain.
+		
+		if (!type.getLocalName().equalsIgnoreCase("Thing")) {	// if type is NOT a generic type 'Thing'
+			
 			chain.add(type);	// add the given type to chain.
 		
 			NodeIterator it = model.listObjectsOfProperty(type, property);
