@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
 public class TestWikiTable {
@@ -25,7 +26,7 @@ public class TestWikiTable {
 				
 		System.out.println("Testing TestWikiTable");
 		
-		File file = new File(TableFolder,"Greater_Los_Angeles_Area_3.tsv");
+		File file = new File(TableFolder,"1933_in_film_0.tsv");
 		
 		System.out.println(String.format("File:%s exists:%s",file.getAbsolutePath(),file.exists()));
 		
@@ -49,6 +50,20 @@ public class TestWikiTable {
 			Map<Resource,Integer> map = itmap.next();
 			System.out.println("-Full Ordered List-");
 			System.out.println(table.printOrderedTypes(map));
+		}
+		
+		System.out.println("Testing ProcessTableForProperties");
+		Property[][] props = table.processTableForProperties(engine);
+		for (int c1=0; c1<table.getColSize(); c1++) {
+			for (int c2=0; c2<table.getColSize(); c2++) {
+				if (props[c1][c2]!=null) {
+					System.out.print(String.format("%s\t", props[c1][c2].getLocalName()));
+				} else {
+					System.out.print(String.format("%s\t", "null"));
+				}
+				
+			}
+			System.out.println();
 		}
 		
 		System.out.println("Testing PrintTopClasses");

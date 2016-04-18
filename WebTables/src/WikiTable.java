@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
 public class WikiTable {
@@ -20,6 +21,7 @@ public class WikiTable {
 	private int rowSize=0;
 	private int colSize=0;
 	private int colResolved=0;
+	private int propertiesFound=0;
 	private String[][] table;
 	private List<Resource>[][] candidates;
 		
@@ -51,6 +53,10 @@ public class WikiTable {
 		// return number of column types
 		return colResolved;
 	}
+	public int propertiesResolved() {
+		// return number of properties resolved.
+		return propertiesFound;
+	}
 	
 	public void processTableForCandidates(Engine engine) {
 		// process each cell in table to find suitable candidates using given 'engine'.
@@ -61,9 +67,51 @@ public class WikiTable {
 		}
 	}
 	
-	public void processTableForProperties(Engine engine) {
-		// TODO: complete this method.
+	public Property[][] processTableForProperties(Engine engine) {
+		// process table to vote for the most common properties between columns.
 		
+		Property[][] propArray = new Property[colSize][colSize];	// a board of most popular properties between columns.
+		// initialize array
+		for (int c1=0; c1<colSize; c1++) {
+			for (int c2=0; c2<colSize; c2++) {
+				propArray[c1][c2] = null;
+			}
+		}
+		// analyze each column pair.
+		for (int c1=0; c1<colSize; c1++) {
+			for (int c2=0; c2<colSize; c2++) {
+				if (c1==c2) continue;	// skip, do not compare column with itself.
+				Map<Property, Integer> propvote = new HashMap<Property,Integer>();
+				
+				for (int r=0; r<rowSize; r++) {
+					List<Resource> canlist1 = candidates[r][c1];
+					List<Resource> canlist2 = candidates[r][c2];
+					Iterator<Resource> it1 = canlist1.iterator();
+					Iterator<Resource> it2 = canlist2.iterator();
+					while (it1.hasNext()) {
+						Resource can1 = it1.next();
+						while (it2.hasNext()) {
+							Resource can2 = it2.next();
+							Property prop = engine.getProperty(can1, can2);
+							
+							if (prop!=null) {
+								Integer count = propvote.get(prop);
+								if (count==null) {	// first vote.
+									propvote.put(prop,1);
+									
+								} else {	// not first vote.
+									propvote.put(prop,count+1);
+								}
+							}
+						}
+					}
+				}	// end of row
+				// count vote to find winner.
+				propArray[c1][c2] = topProperty(propvote);
+				if (propArray[c1][c2]!=null) propertiesFound++;	// increment properties counter.
+			}	// end of c2 
+		}	// end of c1
+		return propArray;
 	}
 	
 	public List<Map<Resource, Integer>> processTableForTypes(Engine engine) {
@@ -126,6 +174,23 @@ public class WikiTable {
 			sb.append(String.format("%s\t%d\n", key.getURI(),sortedMap.get(key)));
 		}
 		return sb.toString();
+	}
+	
+	public String printProperties(Property[][] props) {
+		// print array of properties
+		StringBuilder sb = new StringBuilder();
+		
+		for (int c1=0; c1<this.getColSize(); c1++) {
+			for (int c2=0; c2<this.getColSize(); c2++) {
+				if (props[c1][c2]!=null) {
+					sb.append(String.format("%s\t", props[c1][c2].getLocalName()));
+				} else {
+					sb.append(String.format("%s\t", "null"));
+				}
+			}
+			sb.append("\n");
+		}
+		return(sb.toString());
 	}
 	
 	private boolean parseTsvFile(File tsvfile) {
@@ -197,11 +262,7 @@ public class WikiTable {
 		List<String> best = new ArrayList<String>();
 		
 		for (Entry<Resource,Integer> entry:entrySet) {
-			/*
-			if (entry.getKey().getLocalName().equalsIgnoreCase("Thing")) {
-				continue;	// skip type if it's a "Thing" class.
-			}
-			*/
+
 			if (entry.getValue() > max) {
 				best = new ArrayList<String>();	// reset list.
 				best.add(entry.getKey().getLocalName());			// add 'type' to best list.
@@ -215,7 +276,19 @@ public class WikiTable {
 		return best.toArray(new String[0]);
 	}
 	
-
+	public static Property topProperty(Map<Property,Integer> map) {
+		// return the top property in the map with highest value.  return only one.
+		Set<Entry<Property,Integer>> entrySet = map.entrySet();
+		Property best = null;
+		int max=0;
+		for (Entry<Property,Integer> entry:entrySet) {
+			if (entry.getValue() > max) {
+				 best = entry.getKey();
+				 max = entry.getValue();
+			}
+		}
+		return best;
+	}
 	
 	
 }

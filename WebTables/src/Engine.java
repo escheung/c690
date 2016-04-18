@@ -8,6 +8,8 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDF.Nodes;
 
@@ -18,6 +20,7 @@ public class Engine {
 	public static final String LOC_disambiguations = "resource/disambiguations";
 	public static final String LOC_types = "resource/types";
 	public static final String LOC_ontology = "resource/ontology";
+	public static final String LOC_infobox = "resource/infobox";
 	public static final String NS_dbo = "http://dbpedia.org/ontology/";
 	public static final String NS_rdfs = "http://www.w3.org/2000/01/rdf-schema#";
 	public static final String NS_rdfs_type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -32,13 +35,14 @@ public class Engine {
 	private Dataset ds_disam = null;
 	private Dataset ds_types = null;
 	private Dataset ds_ontology = null;
+	private Dataset ds_infobox = null;
 	
 	Engine () {
 		this.ds_labels = TDBFactory.createDataset(Engine.LOC_labels);
 		this.ds_disam = TDBFactory.createDataset(Engine.LOC_disambiguations);
 		this.ds_types = TDBFactory.createDataset(Engine.LOC_types);
 		this.ds_ontology = TDBFactory.createDataset(Engine.LOC_ontology);
-		
+		this.ds_infobox = TDBFactory.createDataset(Engine.LOC_infobox);
 	}
 	
 	public List<Resource> findCandidates(String target) {
@@ -169,6 +173,20 @@ public class Engine {
 			}
 		}
 		return chain;
+	}
+	
+	public Property getProperty(Resource subject, Resource object) {
+		// get list of infobox properties with the given subject and object. 
+		Model model = ds_infobox.getDefaultModel();
+		List<Property> list = new ArrayList<Property>();
+		Property property = null;
+		//	listStatements(Resource s, Property p, RDFNode o)
+		StmtIterator sit = model.listStatements(subject,null,object);
+		
+		if (sit.hasNext()) {
+			property = sit.next().getPredicate();
+		};
+		return property;
 	}
 	
 	public void close() {

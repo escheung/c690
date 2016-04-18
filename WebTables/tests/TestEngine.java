@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
 public class TestEngine {
@@ -26,7 +27,26 @@ public class TestEngine {
 		
 		TestGetParents();
 		
+		TestGetProperties();
+		
 		engine.close();
+	}
+	
+	protected static void TestGetProperties() {
+		
+		System.out.println("--- Testing GetProperties ---");
+		
+		Resource subject = engine.matchLabel("Alabama");
+		Resource object = engine.matchLabel("Marble");
+		long startTime = System.nanoTime();
+		
+		Property property = engine.getProperty(subject, object);
+		long finishTime = System.nanoTime();
+		double time = (finishTime-startTime)/1.0e9 ;
+		if (property !=null) {
+			System.out.println(String.format("property: %s", property.getURI()));
+		}
+		System.out.println(String.format("Time taken: %.2f",time));
 	}
 
 	protected static void TestFindCandidates() {
@@ -54,8 +74,6 @@ public class TestEngine {
 		double time = (finishTime-startTime)/1.0e6 ;
 		
 		System.out.println(String.format("MatchLabel: URI:%s Time:%f0.5", uri,time));
-		
-		
 	}
 	
 	protected static void TestGetDisams() {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
 public class Start {
@@ -18,9 +19,7 @@ public class Start {
 		int tableCount=0;
 		int tableFailCount=0;
 		long startTime = System.nanoTime() ;
-		//int totalColCount=0;
-		//int totalColResovled=0;
-		//int totalRowCount=0;
+
 		
 		// Engine for processing datasets.
 		Engine engine = new Engine();
@@ -29,7 +28,8 @@ public class Start {
 		File summaryfile = new File(ResourceFolder,"Summary.tsv");
 		
 		// get list of tsv files.
-		File[] tsvfiles = GetListOfFiles(TableFolder,"59th_National_Hockey_League_All-Star_Game_0.tsv");
+		//File[] tsvfiles = GetListOfFiles(TableFolder,"Greater_Los_Angeles_Area_3.tsv");
+		File[] tsvfiles = GetListOfFiles(TableFolder,".tsv");
 		
 		// Summary text.
 		StringBuilder summarysb = new StringBuilder();
@@ -39,7 +39,10 @@ public class Start {
 			int colCount=0;			// columns
 			int colResolved=0;		// columns resolved
 			int rowCount=0;			// rows
+			int propResolved=0;		// properties resolved.
 			tableCount++;			// increment table count.
+			
+			System.out.println("Processing: "+inputfile.getName());
 			
 			// parse table from tsv file.
 			WikiTable table = new WikiTable(inputfile);
@@ -63,14 +66,14 @@ public class Start {
 				colResolved = table.columnsResolved();		// resolved col count.
 				
 				// process table for properties.
-				// TODO: process table for properties
-				
+				Property[][] props = table.processTableForProperties(engine);
+				propResolved = table.propertiesResolved();
 				
 				// write class maps.
 				outputsb.append(table.printTopClasses(classMaps));
 				
 				// write properties.
-				// TODO: Write properties result to file.
+				outputsb.append(table.printProperties(props));
 				
 				
 			} else {
@@ -81,7 +84,7 @@ public class Start {
 			
 			// Write table summary to string.
 			// <TableName> <# of rows> <# of cols> <# of cols with class>
-			summarysb.append(String.format("%s\t%d\t%d\t%d\n", tablename,rowCount,colCount,colResolved));
+			summarysb.append(String.format("%s\t%d\t%d\t%d\t%d\n", tablename,rowCount,colCount,colResolved,propResolved));
 			
 			// write table output text to file.
 			try {
