@@ -70,9 +70,11 @@ public class Start {
 				propResolved = table.propertiesResolved();
 				
 				// write class maps.
+				outputsb.append("----- Classes -----\n");
 				outputsb.append(table.printTopClasses(classMaps));
 				
 				// write properties.
+				outputsb.append("----- Predicates -----\n");
 				outputsb.append(table.printProperties(props));
 				
 				

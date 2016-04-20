@@ -179,18 +179,21 @@ public class WikiTable {
 	public String printProperties(Property[][] props) {
 		// print array of properties
 		StringBuilder sb = new StringBuilder();
+		StringBuilder sb2 = new StringBuilder();
 		
 		for (int c1=0; c1<this.getColSize(); c1++) {
 			for (int c2=0; c2<this.getColSize(); c2++) {
 				if (props[c1][c2]!=null) {
 					sb.append(String.format("%s\t", props[c1][c2].getLocalName()));
+					sb2.append(String.format("%d\t%s\t%d\n", c1+1,props[c1][c2].getLocalName(),c2+1));
 				} else {
 					sb.append(String.format("%s\t", "null"));
 				}
 			}
 			sb.append("\n");
 		}
-		return(sb.toString());
+		
+		return(sb2.toString()+"\n"+sb.toString());
 	}
 	
 	private boolean parseTsvFile(File tsvfile) {

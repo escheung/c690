@@ -82,6 +82,9 @@ public class Engine {
 	public Resource matchLabel(String target) {
 		// Attempt to find the target label from the knowledge base (dbpedia) with label property.
 		Model model = ds_labels.getDefaultModel();
+		if (target==null) return null;							// return null if target is null.
+		if (target.isEmpty()) return null;						// return null if target is empty.
+		if (Character.isDigit(target.charAt(0))) return null;	// return null if target starts with a number.
 		Property property = model.createProperty(NS_rdfs, LN_label);
 		RDFNode node = model.createLiteral(target, "en");
 		ResIterator it = model.listResourcesWithProperty(property, node);
@@ -120,6 +123,7 @@ public class Engine {
 		}
 		return null;
 	}
+	
 /*	
 	public List<Resource> getInstanceType(Resource subject) {
 		// find and return the ontology (dbo) type assigned to the subject.
