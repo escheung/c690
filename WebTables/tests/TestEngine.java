@@ -133,7 +133,7 @@ public class TestEngine {
 	protected static void TestGetParents() {
 		
 		System.out.println("--- Testing GetParents ---");
-		Resource resource = engine.matchLabel("Bleach (anime)");
+		Resource resource = engine.matchLabel("Los Angeles Kings");
 		Resource type = engine.getInstanceType(resource);
 		long startTime = System.nanoTime();
 		if (type!=null) {

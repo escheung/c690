@@ -58,13 +58,16 @@ public class WikiTable {
 		return propertiesFound;
 	}
 	
-	public void processTableForCandidates(Engine engine) {
+	public int processTableForCandidates(Engine engine) {
 		// process each cell in table to find suitable candidates using given 'engine'.
+		int count=0;
 		for (int r=0; r<rowSize; r++) {	// for each row
 			for (int c=0; c<colSize; c++) {		// for each column
 				candidates[r][c] = engine.findCandidates(table[r][c]);	// find potential candidates
+				if (!candidates[r][c].isEmpty()) count++;
 			}
 		}
+		return count;
 	}
 	
 	public Property[][] processTableForProperties(Engine engine) {

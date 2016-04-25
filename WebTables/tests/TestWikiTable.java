@@ -26,7 +26,8 @@ public class TestWikiTable {
 				
 		System.out.println("Testing TestWikiTable");
 		
-		File file = new File(TableFolder,"1933_in_film_0.tsv");
+		//File file = new File(TableFolder,"1933_in_film_0.tsv");
+		File file = new File(TableFolder,"Greater_Los_Angeles_Area_3.tsv");
 		
 		System.out.println(String.format("File:%s exists:%s",file.getAbsolutePath(),file.exists()));
 		

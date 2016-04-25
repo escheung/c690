@@ -40,6 +40,7 @@ public class Start {
 			int colResolved=0;		// columns resolved
 			int rowCount=0;			// rows
 			int propResolved=0;		// properties resolved.
+			int cellResolved=0;		// cell resolved to an entity or resource.
 			tableCount++;			// increment table count.
 			
 			System.out.println("Processing: "+inputfile.getName());
@@ -59,7 +60,7 @@ public class Start {
 				List<Map<Resource, Integer>> classMaps;
 				
 				// process each table for candidates.
-				table.processTableForCandidates(engine);	// discover potential candidates for each cell.
+				cellResolved = table.processTableForCandidates(engine);	// discover potential candidates for each cell.
 				
 				// process each table for top instance type.
 				classMaps = table.processTableForTypes(engine);			// process column candidates to find instance types.
@@ -86,7 +87,7 @@ public class Start {
 			
 			// Write table summary to string.
 			// <TableName> <# of rows> <# of cols> <# of cols with class>
-			summarysb.append(String.format("%s\t%d\t%d\t%d\t%d\n", tablename,rowCount,colCount,colResolved,propResolved));
+			summarysb.append(String.format("%s\t%d\t%d\t%d\t%d\t%d\n", tablename,rowCount,colCount,colResolved,propResolved,cellResolved));
 			
 			// write table output text to file.
 			try {
